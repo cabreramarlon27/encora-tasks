@@ -1,7 +1,20 @@
-<div *ngIf="tasks.length > 0; else noTasks">
+<!-- <div *ngIf="tasks.length > 0; else noTasks">
   <mat-list>
     <mat-list-item *ngFor="let task of tasks">
-      {{ task.title }} - {{ task.description }}
+      <span class="task-title">{{ task.title }}</span>
+      <span class="task-description">{{ task.description }}</span>
+      <span class="task-due-date">Due: {{ task.dueDate | date }}</span>
+      <span
+        class="task-status"
+        [ngClass]="{
+          'status-pending': task.status === 'TODO',
+          'status-in-progress': task.status === 'IN_PROGRESS',
+          'status-completed': task.status === 'COMPLETED',
+          'status-blocked': task.status === 'BLOCKED'
+        }"
+      >
+        {{ task.status }}
+      </span>
       <button mat-icon-button (click)="deleteTask(task.id)">
         <mat-icon>delete</mat-icon>
       </button>
@@ -11,7 +24,35 @@
 
 <ng-template #noTasks>
   <p>No tasks yet!</p>
-</ng-template>
+</ng-template> -->
 
-<button mat-raised-button color="primary" (click)="addTask()">Add Task</button>
-<button mat-raised-button (click)="authService.logout()">Logout</button>
+<!-- <button mat-raised-button color="primary" (click)="addTask()">Add Task</button> -->
+
+<div class="task-list-container">
+  <button mat-raised-button color="primary" (click)="addTask()">
+    Add Task
+  </button>
+
+  <mat-list *ngIf="tasks.length > 0; else noTasks">
+    <mat-list-item *ngFor="let task of tasks" class="task-item">
+      <div class="task-details">
+        <span class="task-title">{{ task.title }}</span>
+        <span class="task-description">{{ task.description }}</span>
+        <span class="task-due-date">{{
+          task.dueDate | date : "mediumDate"
+        }}</span>
+        <ng-template #pastDue>
+          <span class="task-due-date past-due">
+            Overdue by {{ getTimeSinceDueDate(task.dueDate) }}
+          </span>
+        </ng-template>
+      </div>
+      <button mat-icon-button (click)="deleteTask(task.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+  <ng-template #noTasks>
+    <p>No tasks yet!</p>
+  </ng-template>
+</div>

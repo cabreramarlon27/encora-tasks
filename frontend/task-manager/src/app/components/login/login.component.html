@@ -1,3 +1,4 @@
+<h1>Login</h1>
 <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
   <mat-form-field>
     <mat-label>Email</mat-label>
@@ -5,7 +6,7 @@
       matInput
       type="email"
       name="email"
-      [(ngModel)]="user.email"
+      [(ngModel)]="user.username"
       required
     />
   </mat-form-field>

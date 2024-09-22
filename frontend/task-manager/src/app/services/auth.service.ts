@@ -27,8 +27,10 @@ export class AuthService {
       .pipe(
         map(response => {
           // Store JWT in local storage
-          localStorage.setItem('token', response.token); 
-          this.currentUserSubject.next(this.jwtHelper.decodeToken(response.token));
+          console.log("This is the" , response);
+          console.log("Token received:", response.jwt);
+          localStorage.setItem('token', response.jwt); 
+          this.currentUserSubject.next(this.jwtHelper.decodeToken(response.jwt));
           return response;
         }),
         catchError(error => {

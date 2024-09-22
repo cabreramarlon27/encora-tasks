@@ -1,0 +1,27 @@
+header {
+    background-color: #3f51b5; // Example header color
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  
+    .app-title {
+      font-size: 1.2em;
+    }
+  
+    .user-info {
+        // ... other user-info styles
+        font-size: 0.9em;
+        button {
+          margin-left: 10px; // Add some spacing
+          background-color: #f44336; // Example logout button color
+          color: white;
+    
+          &:hover {
+            background-color: #d32f2f; // Darker shade on hover
+          }
+        }
+      }
+  }
+  

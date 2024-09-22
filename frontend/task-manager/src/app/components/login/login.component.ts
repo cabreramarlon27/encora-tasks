@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-// ... (import your authentication service here)
+import { AuthService } from '../../services/auth.service';
+
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  user = { email: '', password: '' };
+  user = { username: '', password: '' };
   error: string = '';
 
   constructor(private router: Router, private authService: AuthService) { }
