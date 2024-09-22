@@ -26,6 +26,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { MatConfirmDialogComponent } from './components/mat-confirmation-dialog/mat-confirmation-dialog.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { UserPreferencesComponent } from './components/user-preferences/user-preferences.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -41,6 +43,7 @@ export function tokenGetter() {
     HeaderComponent,
     DashboardComponent,
     MatConfirmDialogComponent,
+    UserPreferencesComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +62,7 @@ export function tokenGetter() {
     MatSortModule,
     MatTableModule,
     MatSnackBarModule,
+    MatSlideToggleModule,
     HttpClientModule,
     MatNativeDateModule,
     JwtModule.forRoot({

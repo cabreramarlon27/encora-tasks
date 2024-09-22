@@ -50,7 +50,8 @@ export class DashboardComponent implements OnInit {
       .getTasks(
         0,
         10,
-        'dueDate,asc',
+        'dueDate',
+        'asc',
         undefined,
         undefined,
         TaskStatus.COMPLETED
