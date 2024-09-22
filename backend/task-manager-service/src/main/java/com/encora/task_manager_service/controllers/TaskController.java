@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import com.encora.task_manager_service.models.TaskStatus;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -68,7 +69,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task task,  Authentication authentication) {
+    public Task createTask(@Valid @RequestBody Task task, Authentication authentication) {
         task.setUserId(authentication.getName());
         return taskRepository.save(task);
     }

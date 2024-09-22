@@ -30,7 +30,8 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
-
+    @Autowired
+    private CustomSecurityHandlers customSecurityHandlers; // Inject the new handler
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,7 +42,11 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Use stateless session management (JWT)
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customSecurityHandlers)
+                        .accessDeniedHandler(customSecurityHandlers)
+                );;
         return http.build();
     }
 
