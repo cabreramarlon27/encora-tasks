@@ -28,6 +28,10 @@ import { MatConfirmDialogComponent } from './components/mat-confirmation-dialog/
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { UserPreferencesComponent } from './components/user-preferences/user-preferences.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { LayoutModule } from '@angular/cdk/layout';
+import { NavMenuComponent } from './components/nav-menu/nav-menu.component'; // For responsive layout
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -44,6 +48,7 @@ export function tokenGetter() {
     DashboardComponent,
     MatConfirmDialogComponent,
     UserPreferencesComponent,
+    NavMenuComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,6 +70,9 @@ export function tokenGetter() {
     MatSlideToggleModule,
     HttpClientModule,
     MatNativeDateModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    LayoutModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,

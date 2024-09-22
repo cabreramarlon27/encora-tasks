@@ -9,7 +9,7 @@
   </head>
   <body>
     <app-header></app-header>
-    <app-user-preferences></app-user-preferences>
+    <app-nav-menu *ngIf="isUserLoggedIn()"></app-nav-menu>
     <router-outlet></router-outlet>
   </body>
 </html>
