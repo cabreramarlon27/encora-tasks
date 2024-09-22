@@ -4,11 +4,11 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { JwtModule } from '@auth0/angular-jwt';
-import { MatIconModule } from '@angular/material/icon'; 
-import { MatListModule } from '@angular/material/list'; 
-import { MatInputModule } from '@angular/material/input'; 
-import { MatFormFieldModule } from '@angular/material/form-field'; 
-import { MatButtonModule } from '@angular/material/button'; 
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { LoginComponent } from './components/login/login.component';
@@ -19,7 +19,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { HeaderComponent } from './components/header/header.component';
-
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatNativeDateModule } from '@angular/material/core';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { MatConfirmDialogComponent } from './components/mat-confirmation-dialog/mat-confirmation-dialog.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -32,7 +38,9 @@ export function tokenGetter() {
     SignupComponent,
     TaskListComponent,
     TaskCreateComponent,
-    HeaderComponent
+    HeaderComponent,
+    DashboardComponent,
+    MatConfirmDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,16 +55,24 @@ export function tokenGetter() {
     MatButtonModule,
     MatDatepickerModule,
     MatSelectModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatTableModule,
+    MatSnackBarModule,
     HttpClientModule,
+    MatNativeDateModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
-        allowedDomains: ['localhost:8080'], 
-        disallowedRoutes: ['http://localhost:8080/api/auth/login', 'http://localhost:8080/api/auth/signup'] 
-      }
-    })
+        allowedDomains: ['localhost:8080'],
+        disallowedRoutes: [
+          'http://localhost:8080/api/auth/login',
+          'http://localhost:8080/api/auth/signup',
+        ],
+      },
+    }),
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

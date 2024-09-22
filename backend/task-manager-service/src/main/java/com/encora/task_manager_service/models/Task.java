@@ -20,8 +20,8 @@ public class Task {
     private String title;
     private String description;
     @NotNull(message = "Due date is mandatory")
-    private LocalDate dueDate; // New due date field
-    private TaskStatus status; // New status field (enum)
-    private String userId; // New user ID field
+    private LocalDate dueDate;
+    private TaskStatus status;
+    private String userId;
 
 }

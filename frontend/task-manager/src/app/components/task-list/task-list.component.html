@@ -1,57 +1,127 @@
-<!-- <div *ngIf="tasks.length > 0; else noTasks">
-  <mat-list>
-    <mat-list-item *ngFor="let task of tasks">
-      <span class="task-title">{{ task.title }}</span>
-      <span class="task-description">{{ task.description }}</span>
-      <span class="task-due-date">Due: {{ task.dueDate | date }}</span>
-      <span
-        class="task-status"
-        [ngClass]="{
-          'status-pending': task.status === 'TODO',
-          'status-in-progress': task.status === 'IN_PROGRESS',
-          'status-completed': task.status === 'COMPLETED',
-          'status-blocked': task.status === 'BLOCKED'
-        }"
-      >
-        {{ task.status }}
-      </span>
-      <button mat-icon-button (click)="deleteTask(task.id)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </mat-list-item>
-  </mat-list>
-</div>
-
-<ng-template #noTasks>
-  <p>No tasks yet!</p>
-</ng-template> -->
-
-<!-- <button mat-raised-button color="primary" (click)="addTask()">Add Task</button> -->
-
 <div class="task-list-container">
   <button mat-raised-button color="primary" (click)="addTask()">
     Add Task
   </button>
 
-  <mat-list *ngIf="tasks.length > 0; else noTasks">
-    <mat-list-item *ngFor="let task of tasks" class="task-item">
-      <div class="task-details">
-        <span class="task-title">{{ task.title }}</span>
-        <span class="task-description">{{ task.description }}</span>
-        <span class="task-due-date">{{
-          task.dueDate | date : "mediumDate"
-        }}</span>
-        <ng-template #pastDue>
-          <span class="task-due-date past-due">
-            Overdue by {{ getTimeSinceDueDate(task.dueDate) }}
+  <div class="filters">
+    <mat-form-field>
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" />
+      <mat-datepicker-toggle
+        matSuffix
+        [for]="startPicker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>End Date</mat-label>
+      <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" />
+      <mat-datepicker-toggle
+        matSuffix
+        [for]="endPicker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="statusFilter">
+        <mat-option
+          *ngFor="let status of taskStatuses | keyvalue"
+          [value]="status.value"
+        >
+          {{ status.value }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button (click)="applyFilters()">Apply Filters</button>
+  </div>
+
+  <div *ngIf="tasks.length > 0; else noTasks">
+    <mat-table
+      [dataSource]="tasks"
+      matSort
+      (matSortChange)="onSortChange($event)"
+    >
+      <!-- <ng-container matColumnDef="completed">
+        <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+        <mat-cell *matCellDef="let task">
+          <mat-checkbox
+            class="task-checkbox"
+            [(ngModel)]="task.completed"
+            (change)="updateTaskStatus(task)"
+            name="completed"
+          >
+          </mat-checkbox>
+        </mat-cell>
+      </ng-container> -->
+
+      <ng-container matColumnDef="title">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Title
+        </mat-header-cell>
+        <mat-cell *matCellDef="let task">
+          <span class="task-title">{{ task.title }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
+        <mat-cell *matCellDef="let task">
+          <span class="task-description">{{ task.description }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="dueDate">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Due Date
+        </mat-header-cell>
+        <mat-cell *matCellDef="let task">
+          <span
+            class="task-due-date"
+            *ngIf="!isPastDue(task.dueDate); else pastDue"
+          >
+            {{ task.dueDate | date : "mediumDate" }}
           </span>
-        </ng-template>
-      </div>
-      <button mat-icon-button (click)="deleteTask(task.id)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </mat-list-item>
-  </mat-list>
+          <ng-template #pastDue>
+            <span class="task-due-date past-due">
+              Overdue by {{ getTimeSinceDueDate(task.dueDate) }}
+            </span>
+          </ng-template>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+        <mat-cell *matCellDef="let task">
+          <button mat-icon-button (click)="deleteTask(task.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row
+        *matHeaderRowDef="['title', 'description', 'dueDate', 'actions']"
+      ></mat-header-row>
+      <mat-row
+        *matRowDef="
+          let row;
+          columns: ['title', 'description', 'dueDate', 'actions']
+        "
+      ></mat-row>
+    </mat-table>
+
+    <mat-paginator
+      [length]="totalElements"
+      [pageSize]="pageSize"
+      [pageIndex]="currentPage"
+      (page)="onPageChange($event)"
+    >
+    </mat-paginator>
+  </div>
+
   <ng-template #noTasks>
     <p>No tasks yet!</p>
   </ng-template>

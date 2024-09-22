@@ -16,6 +16,9 @@ public class JwtUtil {
 
     private final String SECRET_KEY = "yourRtestRsecretRkeyR123NowThisMustBeAReallyLongKeyToBeWorking";
 
+    public String getSecretKey(){
+        return SECRET_KEY;
+    }
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -49,7 +52,11 @@ public class JwtUtil {
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        try {
+            final String username = extractUsername(token);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        }catch (Exception exception){
+            return false;
+        }
     }
 }

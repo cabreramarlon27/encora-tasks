@@ -4,47 +4,74 @@ import { MatDialog } from '@angular/material/dialog';
 import { TaskCreateComponent } from '../task-create/task-create.component';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { TaskStatus } from 'src/app/models/task.model';
+import { PageEvent } from '@angular/material/paginator'; // Import PageEvent
+import { Sort } from '@angular/material/sort'; // Import Sort
+import { Task } from 'src/app/models/task.model';
+import { MatConfirmDialogComponent } from '../mat-confirmation-dialog/mat-confirmation-dialog.component'; // Assuming you have this component
+
 @Component({
   selector: 'app-task-list',
   templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.scss']
+  styleUrls: ['./task-list.component.scss'],
 })
 export class TaskListComponent implements OnInit {
   tasks: any[] = [];
+  totalElements: number = 0; // Total number of tasks
+  pageSize: number = 10; // Number of tasks per page
+  currentPage: number = 0; // Current page index
+  sortField: string = 'dueDate'; // Field to sort by
+  sortOrder: 'asc' | 'desc' = 'asc'; // Sort order
+  startDate: string | undefined = undefined;
+  endDate: string | undefined = undefined;
+  statusFilter: TaskStatus | undefined = undefined; // Status filter value
+  taskStatuses = TaskStatus; // Make TaskStatus available in the template
 
-  constructor(private taskService: TaskService,
-              public dialog: MatDialog,
-              private authService: AuthService,
-              private router: Router) { }
+  constructor(
+    private taskService: TaskService,
+    public dialog: MatDialog,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']); 
+      this.router.navigate(['/login']);
     }
-    this.getTasks();
-  }
-
-  getTasks() {
-    this.taskService.getTasks().subscribe(tasks => {
-      this.tasks = tasks;
-    });
+    this.loadTasks();
   }
 
   addTask() {
     const dialogRef = this.dialog.open(TaskCreateComponent);
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.taskService.createTask(result).subscribe(() => {
-          this.getTasks();
+          this.loadTasks();
         });
       }
     });
   }
 
   deleteTask(id: number) {
-    this.taskService.deleteTask(id).subscribe(() => {
-      this.getTasks();
+    const dialogRef = this.dialog.open(MatConfirmDialogComponent, {
+      data: { message: 'Are you sure you want to delete this task?' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // User clicked "Yes"
+        this.taskService.deleteTask(id).subscribe({
+          next: () => {
+            // Handle success (e.g., update the task in the local array)
+            this.loadTasks(); // Call loadTasks() after successful deletion
+          },
+          error: (error) => {
+            // Handle error
+            console.error('Error deleting task:', error);
+          },
+        });
+      }
     });
   }
 
@@ -76,7 +103,43 @@ export class TaskListComponent implements OnInit {
     }
   }
 
-  logout() {
-    this.authService.logout();
+  loadTasks() {
+    this.taskService
+      .getTasks(
+        this.currentPage,
+        this.pageSize,
+        this.sortField,
+        this.sortOrder,
+        this.startDate ? this.formatDate(new Date(this.startDate)) : undefined,
+        this.endDate ? this.formatDate(new Date(this.endDate)) : undefined,
+        this.statusFilter
+      )
+      .subscribe((data) => {
+        this.tasks = data.content;
+        this.totalElements = data.totalElements;
+      });
+  }
+
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadTasks();
+  }
+
+  onSortChange(event: Sort) {
+    this.sortField = event.active;
+    this.sortOrder = event.direction === '' ? 'asc' : event.direction;
+    this.loadTasks();
+  }
+
+  applyFilters() {
+    this.loadTasks();
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add leading zero if needed
+    const day = ('0' + date.getDate()).slice(-2); // Add leading zero if needed
+    return `${year}-${month}-${day}`;
   }
 }

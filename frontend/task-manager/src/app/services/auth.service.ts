@@ -11,10 +11,14 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<any>;
   public currentUser: Observable<any>;
 
-  constructor(private http: HttpClient, 
-              private router: Router,
-              private jwtHelper: JwtHelperService) {
-    this.currentUserSubject = new BehaviorSubject<any>(this.getUserFromLocalStorage());
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private jwtHelper: JwtHelperService
+  ) {
+    this.currentUserSubject = new BehaviorSubject<any>(
+      this.getUserFromLocalStorage()
+    );
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
@@ -23,29 +27,25 @@ export class AuthService {
   }
 
   login(credentials: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials)
-      .pipe(
-        map(response => {
-          // Store JWT in local storage
-          console.log("This is the" , response);
-          console.log("Token received:", response.jwt);
-          localStorage.setItem('token', response.jwt); 
-          this.currentUserSubject.next(this.jwtHelper.decodeToken(response.jwt));
-          return response;
-        }),
-        catchError(error => {
-          return throwError(error);
-        })
-      );
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
+      map((response) => {
+        localStorage.setItem('token', response.jwt);
+        this.currentUserSubject.next(this.jwtHelper.decodeToken(response.jwt));
+        this.router.navigate(['/dashboard']);
+        return response;
+      }),
+      catchError((error) => {
+        return throwError(error);
+      })
+    );
   }
 
   signup(user: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/signup`, user)
-      .pipe(
-        catchError(error => {
-          return throwError(error);
-        })
-      );
+    return this.http.post<any>(`${this.apiUrl}/signup`, user).pipe(
+      catchError((error) => {
+        return throwError(error);
+      })
+    );
   }
 
   logout() {
