@@ -1,4 +1,4 @@
-package com.encora.task_manager_service.security;
+package com.encora.task_manager_service.services;
 
 import com.encora.task_manager_service.models.User;
 import com.encora.task_manager_service.repositories.UserRepository;
