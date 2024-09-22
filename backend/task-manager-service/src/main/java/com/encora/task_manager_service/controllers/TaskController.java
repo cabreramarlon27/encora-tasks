@@ -3,10 +3,11 @@ package com.encora.task_manager_service.controllers;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import com.encora.task_manager_service.models.TaskStatus;
+import com.encora.task_manager_service.repositories.UserRepository;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -21,25 +22,29 @@ import org.springframework.web.bind.annotation.*;
 
 import com.encora.task_manager_service.models.Task;
 import com.encora.task_manager_service.repositories.TaskRepository;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Slf4j
 public class TaskController {
 
     private final TaskRepository taskRepository;
     private final MongoTemplate mongoTemplate;
+    private final UserRepository userRepository;
 
     /**
      * Constructor for TaskController.
      *
-     * @param taskRepository  The repository for accessing task data.
-     * @param mongoTemplate   The MongoTemplate for custom queries.
+     * @param taskRepository The repository for accessing task data.
+     * @param mongoTemplate  The MongoTemplate for custom queries.
      */
     @Autowired
-    public TaskController(TaskRepository taskRepository, MongoTemplate mongoTemplate) {
+    public TaskController(TaskRepository taskRepository, MongoTemplate mongoTemplate, UserRepository userRepository) {
         this.taskRepository = taskRepository;
         this.mongoTemplate = mongoTemplate;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -50,7 +55,7 @@ public class TaskController {
      * @return ResponseEntity containing the task if found and authorized, otherwise a 404 or 403 status.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated() and authentication.name == #task.userId")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Task> getTaskById(@PathVariable String id, Authentication authentication) {
         Task task = taskRepository.findById(id).orElse(null);
 
@@ -58,7 +63,8 @@ public class TaskController {
             return ResponseEntity.notFound().build();
         }
 
-        if (!task.getUserId().equals(authentication.getName())) {
+        String userId = getUserIdFromAuthentication(authentication);
+        if (!task.getUserId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -92,9 +98,10 @@ public class TaskController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
         Query query = new Query();
+        String userId = getUserIdFromAuthentication(authentication);
 
         List<Criteria> criteriaList = new ArrayList<>();
-        criteriaList.add(Criteria.where("userId").is(authentication.getName())); // Filter by user ID
+        criteriaList.add(Criteria.where("userId").is(userId)); // Filter by user ID
 
         if (status != null) {
             criteriaList.add(Criteria.where("status").is(TaskStatus.valueOf(status)));
@@ -123,7 +130,10 @@ public class TaskController {
      */
     @PostMapping
     public Task createTask(@Valid @RequestBody Task task, Authentication authentication) {
-        task.setUserId(authentication.getName());
+        log.info("User {} created a new task: {}",
+                authentication.getName(),
+                task.getTitle());
+        task.setUserId(getUserIdFromAuthentication(authentication));
         task.setStatus(task.getStatus() == null ? TaskStatus.TODO : task.getStatus());
         task.setTitle(HtmlUtils.htmlEscape(task.getTitle()));
         task.setDescription(HtmlUtils.htmlEscape(task.getDescription()));
@@ -138,16 +148,20 @@ public class TaskController {
      * @return The updated task, or null if the task is not found.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("isAuthenticated() and authentication.name == #task.userId")
-    public Task updateTask(@PathVariable String id, @RequestBody @Valid Task task) {
-        Task existingTask = taskRepository.findById(id).orElse(null);
-        if (existingTask != null) {
-            existingTask.setTitle(HtmlUtils.htmlEscape(task.getTitle()));
-            existingTask.setDescription(HtmlUtils.htmlEscape(task.getDescription()));
-            existingTask.setStatus(task.getStatus());
-            return taskRepository.save(existingTask);
+    @PreAuthorize("isAuthenticated()")
+    public Task updateTask(@PathVariable String id, @RequestBody @Valid Task task, Authentication authentication) {
+        String userId = getUserIdFromAuthentication(authentication);
+        Task existingTask = taskRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found with ID: " + id));
+        if (userId.equals(existingTask.getUserId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "You are not authorized to update this task."
+            );
         }
-        return null;
+        existingTask.setTitle(HtmlUtils.htmlEscape(task.getTitle()));
+        existingTask.setDescription(HtmlUtils.htmlEscape(task.getDescription()));
+        existingTask.setStatus(task.getStatus());
+        return taskRepository.save(existingTask);
     }
 
     /**
@@ -158,18 +172,25 @@ public class TaskController {
      * @return ResponseEntity with a success message if deleted, otherwise a 404 or 403 status.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> deleteTask(@PathVariable String id, Authentication authentication) {
         Task task = taskRepository.findById(id).orElse(null);
-
         if (task == null) {
             return ResponseEntity.notFound().build();
         }
-
-        if (!task.getUserId().equals(authentication.getName())) {
+        String userId = getUserIdFromAuthentication(authentication);
+        if (!task.getUserId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         taskRepository.deleteById(id);
         return ResponseEntity.accepted().build();
+    }
+
+    private String getUserIdFromAuthentication(Authentication authentication) {
+        String username = authentication.getName();
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UnsupportedOperationException("User not found: " + username))
+                .getId();
     }
 }

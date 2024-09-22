@@ -62,7 +62,13 @@ export class AuthService {
   private getUserFromLocalStorage() {
     const token = localStorage.getItem('token');
     if (token) {
-      return this.jwtHelper.decodeToken(token);
+      const decodedToken = this.jwtHelper.decodeToken(token);
+      // Assuming the JWT now has 'username', 'email', and 'userId'
+      return {
+        username: decodedToken.username,
+        email: decodedToken.email,
+        userId: decodedToken.userId,
+      };
     }
     return null;
   }

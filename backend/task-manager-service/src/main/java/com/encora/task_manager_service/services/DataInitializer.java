@@ -45,19 +45,19 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Check if the default user already exists
-        if (userRepository.findByUsername("admin2").isEmpty()) {
+        if (userRepository.findByUsername("admin").isEmpty()) {
             // Create and save the default user
             User defaultUser = new User();
             defaultUser.setUsername("admin");
+            defaultUser.setEmail(defaultUser.getUsername() + "@example.com");
             defaultUser.setPassword(passwordEncoder.encode("admin")); // Encode the password
             defaultUser.setRoles(Arrays.asList("ROLE_USER")); // Set user roles
             userRepository.save(defaultUser);
         }
+        User adminUser = userRepository.findByUsername("admin").get();
 //         Add default tasks if needed
-        List<Task> existingTasks = taskRepository.findByUserId("admin2");
+        List<Task> existingTasks = taskRepository.findByUserId("admin");
         if (existingTasks.size() < 30) {
-                // Calculate how many more tasks to add
             int tasksToAdd = 30 - existingTasks.size();
             for (int i = 0; i < tasksToAdd; i++) {
                 Task task = new Task();
@@ -65,7 +65,7 @@ public class DataInitializer implements CommandLineRunner {
                 task.setDescription(getRandomTaskDescription());
                 task.setStatus(getRandomTaskStatus());
                 task.setDueDate(getRandomDueDate());
-                task.setUserId("admin2");
+                task.setUserId(adminUser.getId());
                 taskRepository.save(task);
             }
         }

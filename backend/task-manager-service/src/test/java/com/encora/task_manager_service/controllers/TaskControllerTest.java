@@ -84,7 +84,7 @@ public class TaskControllerTest {
         updatedTask.setDescription("Updated description");
         updatedTask.setStatus(TaskStatus.IN_PROGRESS);
         updatedTask.setUserId("testuser"); // Ensure the userId is set
-        Task result = taskController.updateTask("1", updatedTask);
+        Task result = taskController.updateTask("1", updatedTask, authentication);
         assertEquals("Updated Task Title", result.getTitle());
         assertEquals("Updated description", result.getDescription());
         assertEquals(TaskStatus.IN_PROGRESS, result.getStatus());
@@ -94,7 +94,7 @@ public class TaskControllerTest {
     public void testUpdateTask_NotFound() {
         when(taskRepository.findById("3")).thenReturn(Optional.empty());
         Task updatedTask = new Task("3", "Updated Task", "Updated Description", LocalDate.now(), TaskStatus.TODO, "testuser");
-        Task result = taskController.updateTask("3", updatedTask);
+        Task result = taskController.updateTask("3", updatedTask, authentication);
         assertNull(result);
     }
     @Test

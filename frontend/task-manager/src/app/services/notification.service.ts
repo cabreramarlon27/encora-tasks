@@ -15,9 +15,11 @@ export class NotificationService {
 
   private connectWebSocket() {
     const user = this.authService.currentUserValue;
-    if (user && user.sub) {
+    if (user && user.userId) {
       // Assuming 'sub' contains the username or userId
-      this.socket$ = webSocket(`ws://localhost:8080/notifications/${user.sub}`); // Use user ID in the URL
+      this.socket$ = webSocket(
+        `ws://localhost:8080/notifications/${user.userId}`
+      ); // Use user ID in the URL
       this.socket$.subscribe(
         (message) => this.showNotification(message),
         (err) => console.error('WebSocket error:', err)
