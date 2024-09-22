@@ -1,0 +1,17 @@
+<div *ngIf="tasks.length > 0; else noTasks">
+  <mat-list>
+    <mat-list-item *ngFor="let task of tasks">
+      {{ task.title }} - {{ task.description }}
+      <button mat-icon-button (click)="deleteTask(task.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+</div>
+
+<ng-template #noTasks>
+  <p>No tasks yet!</p>
+</ng-template>
+
+<button mat-raised-button color="primary" (click)="addTask()">Add Task</button>
+<button mat-raised-button (click)="authService.logout()">Logout</button>

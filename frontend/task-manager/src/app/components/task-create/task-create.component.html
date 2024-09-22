@@ -1,0 +1,30 @@
+<form (ngSubmit)="onSubmit()" #taskForm="ngForm">
+  <mat-form-field>
+    <mat-label>Title</mat-label>
+    <input
+      matInput
+      type="text"
+      name="title"
+      [(ngModel)]="newTask.title"
+      required
+    />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea
+      matInput
+      name="description"
+      [(ngModel)]="newTask.description"
+    ></textarea>
+  </mat-form-field>
+
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    [disabled]="!taskForm.form.valid"
+  >
+    Create Task
+  </button>
+</form>
