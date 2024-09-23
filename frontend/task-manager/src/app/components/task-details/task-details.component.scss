@@ -1,0 +1,49 @@
+.task-details-container {
+  display: grid;
+  place-items: center;
+  padding: 10px;
+}
+
+.task-details-card {
+  width: 400px;
+  max-width: 90%;
+}
+
+mat-card-header {
+  display: flex;
+  justify-content: space-between; // Position elements on opposite ends
+  align-items: center; // Vertically align items
+
+  .close-button {
+    // No additional styling needed, as mat-icon-button handles positioning
+  }
+}
+
+.detail-item {
+  margin-bottom: 10px;
+
+  .label {
+    font-weight: bold;
+    margin-right: 5px;
+  }
+}
+
+.status-todo {
+  background-color: #f0ad4e; // Example color for TODO
+  color: white;
+}
+
+.status-in-progress {
+  background-color: #5bc0de; // Example color for IN_PROGRESS
+  color: white;
+}
+
+.status-completed {
+  background-color: #5cb85c; // Example color for COMPLETED
+  color: white;
+}
+
+.status-blocked {
+  background-color: #d9534f; // Example color for BLOCKED
+  color: white;
+}

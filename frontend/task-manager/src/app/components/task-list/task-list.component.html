@@ -1,9 +1,8 @@
 <div class="task-list-container">
-  <button mat-raised-button color="primary" (click)="addTask()">
-    Add Task
-  </button>
-
   <div class="filters">
+    <button mat-raised-button color="primary" (click)="addTask()">
+      Add Task
+    </button>
     <mat-form-field>
       <mat-label>Start Date</mat-label>
       <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" />
@@ -36,7 +35,9 @@
       </mat-select>
     </mat-form-field>
 
-    <button mat-raised-button (click)="applyFilters()">Apply Filters</button>
+    <button mat-raised-button color="green" (click)="applyFilters()">
+      Apply Filters
+    </button>
   </div>
 
   <div *ngIf="tasks.length > 0; else noTasks">
@@ -70,7 +71,17 @@
       <ng-container matColumnDef="description">
         <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
         <mat-cell *matCellDef="let task">
-          <span class="task-description">{{ task.description }}</span>
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'status-todo': task.status === 'TODO',
+              'status-in-progress': task.status === 'IN_PROGRESS',
+              'status-completed': task.status === 'COMPLETED',
+              'status-blocked': task.status === 'BLOCKED'
+            }"
+          >
+            {{ task.status }}
+          </span>
         </mat-cell>
       </ng-container>
 
@@ -96,6 +107,9 @@
       <ng-container matColumnDef="actions">
         <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
         <mat-cell *matCellDef="let task">
+          <button mat-icon-button (click)="viewTaskDetails(task)">
+            <mat-icon>visibility</mat-icon>
+          </button>
           <button mat-icon-button (click)="editTask(task)">
             <mat-icon>edit</mat-icon>
           </button>

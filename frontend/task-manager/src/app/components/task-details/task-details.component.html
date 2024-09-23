@@ -1,0 +1,47 @@
+<div class="task-details-container">
+  <mat-card class="task-details-card">
+    <mat-card-header>
+      <mat-card-title>Task Details</mat-card-title>
+      <button
+        mat-icon-button
+        (click)="dialogRef.close()"
+        aria-label="Close dialog"
+        class="close-button"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="detail-item">
+        <span class="label">ID:</span>
+        <span>{{ task.id }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Title:</span>
+        <span>{{ task.title }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Description:</span>
+        <span>{{ task.description }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Due Date:</span>
+        <span>{{ task.dueDate | date }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Status:</span>
+        <span
+          class="status-badge"
+          [ngClass]="{
+            'status-todo': task.status === 'TODO',
+            'status-in-progress': task.status === 'IN_PROGRESS',
+            'status-completed': task.status === 'COMPLETED',
+            'status-blocked': task.status === 'BLOCKED'
+          }"
+        >
+          {{ task.status }}
+        </span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

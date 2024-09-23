@@ -32,7 +32,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
-import { TaskEditComponent } from './components/task-edit/task-edit.component'; // For responsive layout
+import { TaskEditComponent } from './components/task-edit/task-edit.component';
+import { TaskDetailsComponent } from './components/task-details/task-details.component'; // For responsive layout
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -50,6 +51,7 @@ export function tokenGetter() {
     UserPreferencesComponent,
     NavMenuComponent,
     TaskEditComponent,
+    TaskDetailsComponent,
   ],
   imports: [
     BrowserModule,

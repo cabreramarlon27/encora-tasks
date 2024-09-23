@@ -10,6 +10,7 @@ import { Sort } from '@angular/material/sort'; // Import Sort
 import { Task } from 'src/app/models/task.model';
 import { MatConfirmDialogComponent } from '../mat-confirmation-dialog/mat-confirmation-dialog.component'; // Assuming you have this component
 import { TaskEditComponent } from '../task-edit/task-edit.component';
+import { TaskDetailsComponent } from '../task-details/task-details.component';
 
 @Component({
   selector: 'app-task-list',
@@ -89,12 +90,10 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  updateTaskStatus(task: Task) {
-    // Make a PATCH request to your backend to update the task status
-    // this.taskService.updateTask(task.id, { status: task.completed ? 'COMPLETED' : 'TODO' })
-    //   .subscribe(() => {
-    //     // Handle success (e.g., update the task in the local array)
-    //   });
+  viewTaskDetails(task: Task) {
+    this.dialog.open(TaskDetailsComponent, {
+      data: { task: task },
+    });
   }
 
   isPastDue(dueDate: Date): boolean {
