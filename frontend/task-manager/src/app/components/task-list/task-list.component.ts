@@ -9,6 +9,7 @@ import { PageEvent } from '@angular/material/paginator'; // Import PageEvent
 import { Sort } from '@angular/material/sort'; // Import Sort
 import { Task } from 'src/app/models/task.model';
 import { MatConfirmDialogComponent } from '../mat-confirmation-dialog/mat-confirmation-dialog.component'; // Assuming you have this component
+import { TaskEditComponent } from '../task-edit/task-edit.component';
 
 @Component({
   selector: 'app-task-list',
@@ -49,6 +50,19 @@ export class TaskListComponent implements OnInit {
         this.taskService.createTask(result).subscribe(() => {
           this.loadTasks();
         });
+      }
+    });
+  }
+
+  editTask(task: Task) {
+    const dialogRef = this.dialog.open(TaskEditComponent, {
+      data: { task: task },
+    });
+
+    dialogRef.afterClosed().subscribe((updatedTask) => {
+      if (updatedTask) {
+        // Update the task in the task list (you can use a more efficient method if needed)
+        this.loadTasks();
       }
     });
   }

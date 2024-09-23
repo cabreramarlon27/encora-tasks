@@ -1,24 +1,25 @@
-<div class="task-create-container">
-  <mat-card class="task-create-card">
+<div class="task-edit-container">
+  <mat-card class="task-edit-card">
     <mat-card-header>
-      <mat-card-title>Create Task</mat-card-title>
+      <mat-card-title>Edit Task</mat-card-title>
       <button
         mat-icon-button
         (click)="dialogRef.close()"
         aria-label="Close dialog"
+        class="close-button"
       >
         <mat-icon>close</mat-icon>
       </button>
     </mat-card-header>
     <mat-card-content>
-      <form (ngSubmit)="onSubmit()" #createTaskForm="ngForm">
+      <form (ngSubmit)="onSubmit()" #editTaskForm="ngForm">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Title</mat-label>
           <input
             matInput
             type="text"
             name="title"
-            [(ngModel)]="newTask.title"
+            [(ngModel)]="task.title"
             required
           />
         </mat-form-field>
@@ -28,7 +29,7 @@
           <textarea
             matInput
             name="description"
-            [(ngModel)]="newTask.description"
+            [(ngModel)]="task.description"
           ></textarea>
         </mat-form-field>
 
@@ -38,7 +39,7 @@
             matInput
             [matDatepicker]="picker"
             name="dueDate"
-            [(ngModel)]="newTask.dueDate"
+            [(ngModel)]="task.dueDate"
             required
           />
           <mat-datepicker-toggle
@@ -50,7 +51,7 @@
 
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Status</mat-label>
-          <mat-select name="status" [(ngModel)]="newTask.status">
+          <mat-select name="status" [(ngModel)]="task.status">
             <mat-option
               *ngFor="let status of taskStatuses | keyvalue"
               [value]="status.value"
@@ -64,9 +65,9 @@
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="!createTaskForm.form.valid"
+          [disabled]="!editTaskForm.form.valid"
         >
-          Create Task
+          Save Changes
         </button>
       </form>
     </mat-card-content>

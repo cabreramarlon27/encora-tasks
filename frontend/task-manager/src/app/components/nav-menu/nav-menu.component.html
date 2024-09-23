@@ -1,6 +1,10 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #sidenav mode="side" opened="true" class="sidenav">
     <mat-nav-list>
+      <div *ngIf="userName | async as name" class="user-info">
+        <p>Welcome, {{ name }}</p>
+      </div>
+
       <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
         <mat-icon mat-list-icon>dashboard</mat-icon> Dashboard
       </a>
@@ -10,7 +14,7 @@
       <a mat-list-item routerLink="/preferences" routerLinkActive="active">
         <mat-icon mat-list-icon>settings</mat-icon> Preferences
       </a>
-      <a mat-list-item (click)="authService.logout()">
+      <a mat-list-item (click)="logout()">
         <mat-icon mat-list-icon>logout</mat-icon> Logout
       </a>
     </mat-nav-list>
@@ -27,7 +31,7 @@
       >
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
-      <span>Task Manager</span>
+      <span>Task Manager 2</span>
     </mat-toolbar>
     <router-outlet></router-outlet>
   </mat-sidenav-content>

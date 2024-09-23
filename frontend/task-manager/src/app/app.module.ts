@@ -18,7 +18,6 @@ import { TaskCreateComponent } from './components/task-create/task-create.compon
 import { HttpClientModule } from '@angular/common/http';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
-import { HeaderComponent } from './components/header/header.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
@@ -32,7 +31,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { LayoutModule } from '@angular/cdk/layout';
-import { NavMenuComponent } from './components/nav-menu/nav-menu.component'; // For responsive layout
+import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
+import { TaskEditComponent } from './components/task-edit/task-edit.component'; // For responsive layout
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -45,11 +45,11 @@ export function tokenGetter() {
     SignupComponent,
     TaskListComponent,
     TaskCreateComponent,
-    HeaderComponent,
     DashboardComponent,
     MatConfirmDialogComponent,
     UserPreferencesComponent,
     NavMenuComponent,
+    TaskEditComponent,
   ],
   imports: [
     BrowserModule,

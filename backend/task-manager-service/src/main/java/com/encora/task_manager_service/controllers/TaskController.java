@@ -153,7 +153,7 @@ public class TaskController {
         String userId = getUserIdFromAuthentication(authentication);
         Task existingTask = taskRepository.findById(id).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found with ID: " + id));
-        if (userId.equals(existingTask.getUserId())) {
+        if (!userId.equals(existingTask.getUserId())) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN, "You are not authorized to update this task."
             );
@@ -161,6 +161,7 @@ public class TaskController {
         existingTask.setTitle(HtmlUtils.htmlEscape(task.getTitle()));
         existingTask.setDescription(HtmlUtils.htmlEscape(task.getDescription()));
         existingTask.setStatus(task.getStatus());
+        existingTask.setDueDate(task.getDueDate());
         return taskRepository.save(existingTask);
     }
 

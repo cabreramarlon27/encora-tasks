@@ -23,13 +23,13 @@ public class Notification {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @Scheduled(fixedRate = 3600) // Run every hour (adjust as needed)
+//    @Scheduled(fixedRate = 3600) // Run every hour (adjust as needed)
     public void checkForDueTasks() {
 
 
         List<Task> tasks = taskRepository.findAll(); // Assuming you have a TaskRepository
 
-        System.out.println("Checking for due tasks...");
+//        System.out.println("Checking for due tasks...");
         // 2. Filter tasks due within the next 24 hours or overdue.
         List<Task> dueTasks = tasks.stream()
                 .filter(task -> isTaskDueSoon(task) || isTaskOverdue(task))
