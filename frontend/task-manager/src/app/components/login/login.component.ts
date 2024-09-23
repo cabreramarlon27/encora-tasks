@@ -10,16 +10,17 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent {
   user = { email: '', password: '' };
   error: string = '';
-
+  errorMessage: string | null = null;
   constructor(private router: Router, private authService: AuthService) {}
 
   onSubmit() {
     this.authService.login(this.user).subscribe(
       () => {
-        this.router.navigate(['/tasks']); // Redirect on success
+        this.router.navigate(['']); // Redirect on success
       },
       (error) => {
         this.error = 'Invalid email or password'; // Handle login errors
+        this.errorMessage = error;
       }
     );
   }

@@ -1,43 +1,100 @@
-<form (ngSubmit)="onSubmit()" #signupForm="ngForm">
-  <mat-form-field>
-    <mat-label>Email</mat-label>
-    <input
-      matInput
-      type="email"
-      name="email"
-      [(ngModel)]="user.email"
-      required
-    />
-  </mat-form-field>
+<div class="signup-container">
+  <mat-card class="signup-card">
+    <mat-card-header>
+      <mat-card-title>Signup</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Username</mat-label>
+          <input
+            matInput
+            type="text"
+            name="username"
+            [(ngModel)]="user.username"
+            required
+          />
+          <mat-error
+            *ngIf="signupForm.controls['username']?.hasError('required')"
+          >
+            Username is required
+          </mat-error>
+        </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Username</mat-label>
-    <input
-      matInput
-      type="text"
-      name="username"
-      [(ngModel)]="user.username"
-      required
-    />
-  </mat-form-field>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            name="email"
+            [(ngModel)]="user.email"
+            email
+            required
+          />
+          <mat-error *ngIf="signupForm.controls['email']?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="signupForm.controls['email']?.hasError('email')">
+            Please enter a valid email address
+          </mat-error>
+        </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Password</mat-label>
-    <input
-      matInput
-      type="password"
-      name="password"
-      [(ngModel)]="user.password"
-      required
-    />
-  </mat-form-field>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            name="password"
+            [(ngModel)]="user.password"
+            required
+          />
+          <mat-error
+            *ngIf="signupForm.controls['password']?.hasError('required')"
+          >
+            Password is required
+          </mat-error>
+          <mat-error
+            *ngIf="signupForm.controls['password']?.hasError('pattern')"
+          >
+            Password must be at least 8 characters long, contain one uppercase
+            letter, one number, and one special character.
+          </mat-error>
+        </mat-form-field>
 
-  <button
-    mat-raised-button
-    color="primary"
-    type="submit"
-    [disabled]="!signupForm.form.valid"
-  >
-    Signup
-  </button>
-</form>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Confirm Password</mat-label>
+          <input
+            matInput
+            type="password"
+            name="confirmPassword"
+            [(ngModel)]="user.confirmPassword"
+            required
+          />
+          <mat-error
+            *ngIf="signupForm.controls['confirmPassword']?.hasError('required')"
+          >
+            Confirm Password is required
+          </mat-error>
+          <mat-error
+            *ngIf="signupForm.controls['confirmPassword']?.hasError('noMatch')"
+          >
+            Passwords do not match
+          </mat-error>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="!signupForm.form.valid"
+          class="signup-button"
+        >
+          Signup
+        </button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <p>Already have an account? <a routerLink="/login">Login</a></p>
+    </mat-card-actions>
+  </mat-card>
+</div>

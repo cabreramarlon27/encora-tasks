@@ -15,13 +15,13 @@ const routes: Routes = [
     path: 'preferences',
     component: UserPreferencesComponent,
     canActivate: [AuthGuard],
-  }, // New route for preferences
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  },
   {
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [AuthGuard],
   },
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' }, // Redirect to /dashboard
 ];
 
 @NgModule({

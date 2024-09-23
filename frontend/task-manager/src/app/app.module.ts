@@ -30,6 +30,7 @@ import { UserPreferencesComponent } from './components/user-preferences/user-pre
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatCardModule } from '@angular/material/card';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component'; // For responsive layout
 
@@ -72,6 +73,7 @@ export function tokenGetter() {
     MatNativeDateModule,
     MatToolbarModule,
     MatSidenavModule,
+    MatCardModule,
     LayoutModule,
     JwtModule.forRoot({
       config: {

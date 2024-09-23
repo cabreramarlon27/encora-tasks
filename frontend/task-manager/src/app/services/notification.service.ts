@@ -10,7 +10,7 @@ export class NotificationService {
 
   constructor(private authService: AuthService) {
     this.socket$ = webSocket(`ws://localhost:8080/notificationsd`);
-    this.connectWebSocket();
+    // this.connectWebSocket();
   }
 
   private connectWebSocket() {

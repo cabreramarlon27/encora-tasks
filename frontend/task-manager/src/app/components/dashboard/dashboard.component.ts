@@ -13,6 +13,7 @@ export class DashboardComponent implements OnInit {
   completedTasks: number = 0;
   startDate: string | undefined = undefined;
   endDate: string | undefined = undefined;
+  pastDueTasks: number = 0;
 
   constructor(private taskService: TaskService) {}
 
@@ -59,6 +60,10 @@ export class DashboardComponent implements OnInit {
       .subscribe((data) => {
         this.completedTasks = data.totalElements;
       });
+
+    this.taskService.getPastDueTasksCount().subscribe((count) => {
+      this.pastDueTasks = count;
+    });
   }
 
   private formatDate(date: Date): string {

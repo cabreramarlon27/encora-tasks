@@ -12,4 +12,18 @@
       margin-bottom: 5px;
     }
   }
+
+  @media (max-width: 600px) {
+    // Adjust breakpoint as needed
+    flex-direction: column; // Stack elements vertically on smaller screens
+
+    .summary-item {
+      width: 100%; // Make summary items full width
+    }
+  }
+}
+
+.chart-container {
+  width: 400px; // Adjust width as needed
+  height: 300px; // Adjust height as needed
 }

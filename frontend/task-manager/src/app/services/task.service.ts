@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { Task } from '../models/task.model'; // Import the Task model
 
@@ -50,5 +50,23 @@ export class TaskService {
   deleteTask(id: number): Observable<any> {
     const url = `${this.apiUrl}/${id}`;
     return this.http.delete(url);
+  }
+
+  getPastDueTasksCount(): Observable<number> {
+    const today = new Date();
+    const todayString = this.formatDate(today); // Use your existing formatDate() method
+
+    let params = new HttpParams().set('endDate', todayString).set('size', '1'); // Only need the count, so fetch one item
+
+    return this.http
+      .get<any>(this.apiUrl, { params })
+      .pipe(map((data) => data.totalElements));
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
   }
 }

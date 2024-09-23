@@ -35,7 +35,11 @@ export class AuthService {
         return response;
       }),
       catchError((error) => {
-        return throwError(error);
+        if (error.status === 401) {
+          return throwError('Invalid email or password.'); // Customize the error message
+        } else {
+          return throwError('An error occurred. Please try again later.'); // Generic error message
+        }
       })
     );
   }
