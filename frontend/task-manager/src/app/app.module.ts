@@ -34,6 +34,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { TaskEditComponent } from './components/task-edit/task-edit.component';
 import { TaskDetailsComponent } from './components/task-details/task-details.component'; // For responsive layout
+import { ReactiveFormsModule } from '@angular/forms';
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -76,6 +77,7 @@ export function tokenGetter() {
     MatToolbarModule,
     MatSidenavModule,
     MatCardModule,
+    ReactiveFormsModule,
     LayoutModule,
     JwtModule.forRoot({
       config: {

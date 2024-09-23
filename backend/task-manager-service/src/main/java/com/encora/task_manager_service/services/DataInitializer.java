@@ -56,7 +56,7 @@ public class DataInitializer implements CommandLineRunner {
         }
         User adminUser = userRepository.findByUsername("admin").get();
 //         Add default tasks if needed
-        List<Task> existingTasks = taskRepository.findByUserId("admin");
+        List<Task> existingTasks = taskRepository.findByUserId(adminUser.getId());
         if (existingTasks.size() < 30) {
             int tasksToAdd = 30 - existingTasks.size();
             for (int i = 0; i < tasksToAdd; i++) {

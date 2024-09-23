@@ -5,7 +5,7 @@ import { Task, TaskStatus } from '../../models/task.model';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'], // Add styling later
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   totalTasks: number = 0;
@@ -22,11 +22,13 @@ export class DashboardComponent implements OnInit {
   }
 
   loadTaskSummary() {
-    this.taskService.getTasks().subscribe((data) => {
-      this.totalTasks = data.totalElements;
-    });
+    this.taskService
+      .getTasks(0, 1, 'dueDate', 'asc', undefined, undefined, undefined)
+      .subscribe((data) => {
+        this.totalTasks = data.totalElements;
+      });
 
-    // Calculate tasks due soon (e.g., within the next week)
+    // Calculate tasks due soon (e.g., within the next 24 hours)
     const today = new Date();
     const tomorrowDate = new Date();
     tomorrowDate.setDate(today.getDate() + 1);
@@ -34,15 +36,7 @@ export class DashboardComponent implements OnInit {
     this.startDate = this.formatDate(today);
 
     this.taskService
-      .getTasks(
-        0,
-        10,
-        'dueDate',
-        'asc',
-        this.startDate,
-        this.endDate,
-        undefined
-      )
+      .getTasks(0, 1, 'dueDate', 'asc', this.startDate, this.endDate, undefined)
       .subscribe((data) => {
         this.tasksDueSoon = data.totalElements;
       });
@@ -61,9 +55,15 @@ export class DashboardComponent implements OnInit {
         this.completedTasks = data.totalElements;
       });
 
-    this.taskService.getPastDueTasksCount().subscribe((count) => {
-      this.pastDueTasks = count;
-    });
+    // Get all past-due tasks
+    this.taskService
+      .getTasks(0, 1000, 'dueDate', 'asc', undefined, this.formatDate(today))
+      .subscribe((data) => {
+        // Filter out completed tasks on the frontend
+        this.pastDueTasks = data.content.filter(
+          (task: Task) => task.status !== TaskStatus.COMPLETED
+        ).length;
+      });
   }
 
   private formatDate(date: Date): string {

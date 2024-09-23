@@ -16,20 +16,24 @@ import {
   styleUrls: ['./signup.component.scss'],
 })
 export class SignupComponent {
-  user = { email: '', username: '', password: '', confirmPassword: '' }; // Add confirmPassword
+  user = { email: '', username: '', password: '', confirmPassword: '' };
   error: string = '';
 
   constructor(private router: Router, private authService: AuthService) {}
 
   onSubmit() {
     if (this.signupForm.valid) {
-      // Check if the entire form is valid
-      this.authService.signup(this.user).subscribe(
+      const userData = {
+        username: this.signupForm.value.username,
+        email: this.signupForm.value.email,
+        password: this.signupForm.value.password,
+      };
+      this.authService.signup(userData).subscribe(
         () => {
-          this.router.navigate(['/login']); // Redirect to login on success
+          this.router.navigate(['/login']);
         },
         (error) => {
-          this.error = 'Error creating account'; // Handle signup errors
+          this.error = 'Error creating account';
         }
       );
     }

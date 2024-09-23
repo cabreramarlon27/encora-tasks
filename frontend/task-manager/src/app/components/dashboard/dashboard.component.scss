@@ -21,6 +21,104 @@
       width: 100%; // Make summary items full width
     }
   }
+
+  .chart-section {
+    margin-bottom: 20px;
+    width: 100%; // Make charts responsive
+
+    h2 {
+      margin-bottom: 10px;
+    }
+  }
+
+  .chart {
+    position: relative;
+    height: 30px; // Adjust bar height as needed
+    background-color: #eee;
+    border-radius: 5px;
+    overflow: hidden; // Hide overflowing labels
+
+    .bar,
+    .slice {
+      position: absolute;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      color: white;
+      transition: width 0.3s ease; // Add a smooth transition
+
+      .label {
+        font-size: 0.8em;
+        white-space: nowrap; // Prevent labels from wrapping
+      }
+    }
+
+    .bar {
+      // Bar chart specific styles
+      &.total {
+        background-color: #4caf50;
+      } // Green
+      &.due-soon {
+        background-color: #ffc107;
+      } // Yellow
+      &.completed {
+        background-color: #2196f3;
+      } // Blue
+      &.past-due {
+        background-color: #f44336;
+      } // Red
+    }
+
+    &.donut-chart {
+      width: 150px; // Adjust donut chart size
+      height: 150px;
+      border-radius: 50%;
+      margin: 20px auto;
+
+      .slice {
+        width: 50%;
+        height: 100%;
+        transform-origin: 50% 100%; // Rotate from the bottom
+
+        &.completed {
+          background-color: #2196f3; // Blue
+          z-index: 2; // Ensure completed slice is on top
+        }
+
+        &.remaining {
+          background-color: #eee;
+        }
+
+        .label {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 1.2em;
+        }
+      }
+    }
+
+    .donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px; // Adjust inner circle size
+      height: 80px;
+      border-radius: 50%;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .label {
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 .chart-container {

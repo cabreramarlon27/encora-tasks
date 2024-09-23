@@ -1,24 +1,52 @@
+<!-- signup.component.html -->
 <div class="signup-container">
   <mat-card class="signup-card">
     <mat-card-header>
       <mat-card-title>Signup</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div
+          class="alert alert-danger"
+          role="alert"
+          *ngIf="signupForm.touched && signupForm.invalid"
+        >
+          <div *ngIf="signupForm.controls['username'].errors?.['required']">
+            Username is required.
+          </div>
+          <div *ngIf="signupForm.controls['email'].errors?.['required']">
+            Email is required.
+          </div>
+          <div *ngIf="signupForm.controls['email'].errors?.['email']">
+            Please enter a valid email.
+          </div>
+          <div *ngIf="signupForm.controls['password'].errors?.['required']">
+            Password is required.
+          </div>
+          <div *ngIf="signupForm.controls['password'].errors?.['pattern']">
+            Password must be at least 8 characters long, contain one uppercase
+            letter, one number, and one special character.
+          </div>
+          <div
+            *ngIf="signupForm.controls['confirmPassword'].errors?.['required']"
+          >
+            Confirm Password is required.
+          </div>
+          <div
+            *ngIf="signupForm.controls['confirmPassword'].errors?.['noMatch']"
+          >
+            Passwords do not match
+          </div>
+        </div>
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Username</mat-label>
           <input
             matInput
             type="text"
             name="username"
-            [(ngModel)]="user.username"
+            formControlName="username"
             required
           />
-          <mat-error
-            *ngIf="signupForm.controls['username']?.hasError('required')"
-          >
-            Username is required
-          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="form-field">
@@ -27,16 +55,10 @@
             matInput
             type="email"
             name="email"
-            [(ngModel)]="user.email"
+            formControlName="email"
             email
             required
           />
-          <mat-error *ngIf="signupForm.controls['email']?.hasError('required')">
-            Email is required
-          </mat-error>
-          <mat-error *ngIf="signupForm.controls['email']?.hasError('email')">
-            Please enter a valid email address
-          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="form-field">
@@ -45,20 +67,9 @@
             matInput
             type="password"
             name="password"
-            [(ngModel)]="user.password"
+            formControlName="password"
             required
           />
-          <mat-error
-            *ngIf="signupForm.controls['password']?.hasError('required')"
-          >
-            Password is required
-          </mat-error>
-          <mat-error
-            *ngIf="signupForm.controls['password']?.hasError('pattern')"
-          >
-            Password must be at least 8 characters long, contain one uppercase
-            letter, one number, and one special character.
-          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="form-field">
@@ -67,26 +78,16 @@
             matInput
             type="password"
             name="confirmPassword"
-            [(ngModel)]="user.confirmPassword"
+            formControlName="confirmPassword"
             required
           />
-          <mat-error
-            *ngIf="signupForm.controls['confirmPassword']?.hasError('required')"
-          >
-            Confirm Password is required
-          </mat-error>
-          <mat-error
-            *ngIf="signupForm.controls['confirmPassword']?.hasError('noMatch')"
-          >
-            Passwords do not match
-          </mat-error>
         </mat-form-field>
 
         <button
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="!signupForm.form.valid"
+          [disabled]="!signupForm.valid"
           class="signup-button"
         >
           Signup

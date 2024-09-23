@@ -90,16 +90,21 @@
           Due Date
         </mat-header-cell>
         <mat-cell *matCellDef="let task">
-          <span
-            class="task-due-date"
-            *ngIf="!isPastDue(task.dueDate); else pastDue"
-          >
+          <span *ngIf="task.status === 'COMPLETED'; else dueDateLogic">
             {{ task.dueDate | date : "mediumDate" }}
           </span>
-          <ng-template #pastDue>
-            <span class="task-due-date past-due">
-              Overdue by {{ getTimeSinceDueDate(task.dueDate) }}
+          <ng-template #dueDateLogic>
+            <span
+              class="task-due-date"
+              *ngIf="!isPastDue(task.dueDate); else pastDue"
+            >
+              {{ task.dueDate | date : "mediumDate" }}
             </span>
+            <ng-template #pastDue>
+              <span class="task-due-date past-due">
+                Overdue by {{ getTimeSinceDueDate(task.dueDate) }}
+              </span>
+            </ng-template>
           </ng-template>
         </mat-cell>
       </ng-container>
