@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError } from 'rxjs';
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject, throwError, Subject } from 'rxjs';
+import { catchError, tap, switchMap, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
@@ -16,6 +16,7 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<any>;
   public currentUser: Observable<any>;
   private refreshTokenSubject: BehaviorSubject<string>;
+  logoutEvent = new Subject<void>();
 
   constructor(
     private http: HttpClient,
@@ -75,12 +76,17 @@ export class AuthService {
         return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken });
       }),
       tap((response) => {
+        console.log('New JWT token:', response.accessToken);
         // Store the new JWT token in local storage
-        localStorage.setItem('token', response.jwt);
+        localStorage.setItem('token', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken); // Update refresh token
         // Update the currentUserSubject with the new token
-        this.currentUserSubject.next(this.jwtHelper.decodeToken(response.jwt));
+        this.currentUserSubject.next(
+          this.jwtHelper.decodeToken(response.accessToken)
+        );
       }),
       catchError((error) => {
+        console.error('Error refreshing token:', error);
         // Handle error, e.g., logout the user
         this.logout();
         return throwError(error);
@@ -89,28 +95,34 @@ export class AuthService {
   }
 
   logout() {
-    // Call the new logout API on the backend
-    this.http.post(`${this.apiUrl}/logout`, {}).subscribe(
-      () => {
-        // Remove tokens from local storage
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        // Update subjects
-        this.currentUserSubject.next(null);
-        this.refreshTokenSubject.next('');
-        // Redirect to login
-        this.router.navigate(['/login']);
-      },
-      (error) => {
-        console.error('Error logging out:', error);
-        // Handle error, e.g., display an error message
-      }
-    );
+    console.log('logout called');
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    this.currentUserSubject.next(null);
+    this.refreshTokenSubject.next('');
+
+    // Use finalize to ensure navigation and change detection happen after the logout request
+    this.http
+      .post(`${this.apiUrl}/logout`, {})
+      .pipe(
+        finalize(() => {
+          this.router.navigate(['/login']);
+          this.logoutEvent.next();
+        })
+      )
+      .subscribe(
+        () => {
+          console.log('Logged out successfully');
+        },
+        (error) => {
+          console.error('Error logging out:', error);
+        }
+      );
   }
 
   isLoggedIn(): boolean {
     const token = localStorage.getItem('token');
-    return !this.jwtHelper.isTokenExpired(token);
+    return token != null;
   }
 
   private getUserFromLocalStorage() {
@@ -125,5 +137,9 @@ export class AuthService {
       };
     }
     return null;
+  }
+
+  getJwtToken(): string | null {
+    return localStorage.getItem('token');
   }
 }

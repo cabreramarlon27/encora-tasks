@@ -6,25 +6,25 @@ import { AuthService } from './auth.service';
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private notifications$ = new Subject<string>();
-  private socket$: WebSocketSubject<any>;
+  // private socket$: WebSocketSubject<any>;
 
   constructor(private authService: AuthService) {
-    this.socket$ = webSocket(`ws://localhost:8080/notificationsd`);
+    // this.socket$ = webSocket(`ws://localhost:8080/notificationsd`);
     // this.connectWebSocket();
   }
 
   private connectWebSocket() {
     const user = this.authService.currentUserValue;
-    if (user && user.userId) {
-      // Assuming 'sub' contains the username or userId
-      this.socket$ = webSocket(
-        `ws://localhost:8080/notifications/${user.userId}`
-      ); // Use user ID in the URL
-      this.socket$.subscribe(
-        (message) => this.showNotification(message),
-        (err) => console.error('WebSocket error:', err)
-      );
-    }
+    // if (user && user.userId) {
+    //   // Assuming 'sub' contains the username or userId
+    //   this.socket$ = webSocket(
+    //     `ws://localhost:8080/notifications/${user.userId}`
+    //   ); // Use user ID in the URL
+    //   this.socket$.subscribe(
+    //     (message) => this.showNotification(message),
+    //     (err) => console.error('WebSocket error:', err)
+    //   );
+    // }
   }
 
   getNotifications(): Observable<string> {
@@ -73,9 +73,9 @@ export class NotificationService {
       this.connectWebSocket();
     } else {
       // Close the WebSocket connection if the user disables notifications
-      if (this.socket$) {
-        this.socket$.complete();
-      }
+      // if (this.socket$) {
+      //   this.socket$.complete();
+      // }
     }
   }
 }

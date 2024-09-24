@@ -1,6 +1,7 @@
 package com.encora.task_manager_service.security;
 
 import com.encora.task_manager_service.services.CustomUserDetailsService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -33,9 +33,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            if (isRefreshTokenRequest(request)){
+                filterChain.doFilter(request, response);
+                return;
+            }
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                String username = jwtUtils.extractUsername(jwt);
+                String username = jwtUtils.extractEmail(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -44,11 +48,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (ExpiredJwtException e) {
+            // Log the exception for debugging
+            logger.error("JWT token is expired: {} token: {}" , e.getMessage(), e.getClaims());
+            // Set the response status to 401 Unauthorized
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("JWT token is expired"); // Optional message
+            return;
         } catch (Exception e) {
             logger.error("Cannot set user authentication", e);
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isRefreshTokenRequest(HttpServletRequest request) {
+        return request.getRequestURI().equals("/api/auth/refresh");
     }
 
     private String parseJwt(HttpServletRequest request) {

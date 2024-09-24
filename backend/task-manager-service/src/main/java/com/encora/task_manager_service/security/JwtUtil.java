@@ -7,7 +7,8 @@ import com.encora.task_manager_service.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.catalina.Store;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtUtil {
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
@@ -44,6 +46,10 @@ public class JwtUtil {
     }
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
     }
 
     public Date extractExpiration(String token) {
@@ -86,8 +92,8 @@ public class JwtUtil {
     }
 
     public String generateTokenFromUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        User user = userRepository.findById(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + username));
         return generateToken(user);
     }
 
@@ -105,18 +111,14 @@ public class JwtUtil {
             final String username = extractUsername(token);
             return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
         }catch (Exception exception){
+            logger.error("This one" + exception.getMessage());
             return false;
         }
     }
 
     public Boolean validateJwtToken(String authToken) { // Correct method signature
-        try {
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(authToken);
             return true;
-        } catch (Exception e) {
-            // Handle the exception (log it, etc.)
-            return false;
-        }
     }
 
     public String generateToken(User user) {
