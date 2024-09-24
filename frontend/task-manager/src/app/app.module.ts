@@ -15,7 +15,7 @@ import { LoginComponent } from './components/login/login.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { TaskListComponent } from './components/task-list/task-list.component';
 import { TaskCreateComponent } from './components/task-create/task-create.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -35,6 +35,7 @@ import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { TaskEditComponent } from './components/task-edit/task-edit.component';
 import { TaskDetailsComponent } from './components/task-details/task-details.component'; // For responsive layout
 import { ReactiveFormsModule } from '@angular/forms';
+import { TokenInterceptor } from './services/token.interceptor';
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -90,7 +91,13 @@ export function tokenGetter() {
       },
     }),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
