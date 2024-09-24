@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private String jwt;
-    private String refreshToken; // Add refresh token field
+public class TokenRefreshRequest {
+    private String refreshToken;
 }

@@ -1,18 +1,24 @@
 package com.encora.task_manager_service.security;
 
+import com.encora.task_manager_service.models.RefreshToken;
 import com.encora.task_manager_service.models.User;
+import com.encora.task_manager_service.repositories.RefreshTokenRepository;
 import com.encora.task_manager_service.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.catalina.Store;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -21,11 +27,17 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
+    @Value("${jwt.refreshExpiration}")
+    private Long refreshTokenDurationMs;
+
     @Value("${jwt.expiration}")
     private long expirationTimeInMillis; // In milliseconds
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     public String getSecretKey(){
         return SECRET_KEY;
@@ -54,7 +66,7 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) throws Exception {
         Map<String, Object> claims = new HashMap<>();
         User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new Exception("User not found with email: " + userDetails.getUsername()));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userDetails.getUsername()));
         claims.put("userId", user.getId());
         claims.put("username", user.getUsername());
         claims.put("email", user.getEmail());
@@ -67,6 +79,27 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
+    public String generateRefreshToken(UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userDetails.getUsername()));
+        return createRefreshToken(user.getId());
+    }
+
+    public String generateTokenFromUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        return generateToken(user);
+    }
+
+    private String createRefreshToken(String userId) {
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUserId(userId);
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken = refreshTokenRepository.save(refreshToken);
+        return refreshToken.getToken();
+    }
+
     public Boolean validateToken(String token, UserDetails userDetails) {
         try {
             final String username = extractUsername(token);
@@ -74,5 +107,23 @@ public class JwtUtil {
         }catch (Exception exception){
             return false;
         }
+    }
+
+    public Boolean validateJwtToken(String authToken) { // Correct method signature
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(authToken);
+            return true;
+        } catch (Exception e) {
+            // Handle the exception (log it, etc.)
+            return false;
+        }
+    }
+
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("username", user.getUsername());
+        claims.put("email", user.getEmail());
+        return createToken(claims, user.getUsername());
     }
 }

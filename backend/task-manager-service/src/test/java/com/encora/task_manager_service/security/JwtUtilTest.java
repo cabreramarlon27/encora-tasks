@@ -23,14 +23,14 @@ public class JwtUtilTest {
     }
 
     @Test
-    public void testGenerateAndValidateToken() {
+    public void testGenerateAndValidateToken() throws Exception {
         String token = jwtUtil.generateToken(userDetails);
         assertNotNull(token);
         assertTrue(jwtUtil.validateToken(token, userDetails));
     }
 
     @Test
-    public void testExtractUsernameFromToken() {
+    public void testExtractUsernameFromToken() throws Exception{
         String token = jwtUtil.generateToken(userDetails);
         String extractedUsername = jwtUtil.extractUsername(token);
         assertEquals(userDetails.getUsername(), extractedUsername);

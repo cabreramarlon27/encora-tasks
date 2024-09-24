@@ -32,21 +32,22 @@ public class SecurityConfig {
     private JwtRequestFilter jwtRequestFilter;
     @Autowired
     private CustomSecurityHandlers customSecurityHandlers; // Inject the new handler
+    @Autowired
+    private AuthTokenFilter authTokenFilter;
+
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Updated CORS configuration
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll() // Permit all requests to /api/auth/**
-                        .anyRequest().authenticated() // Require authentication for all other requests
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Use stateless session management (JWT)
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(customSecurityHandlers)
-                        .accessDeniedHandler(customSecurityHandlers)
-                );;
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

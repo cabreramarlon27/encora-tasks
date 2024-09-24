@@ -1,17 +1,22 @@
 package com.encora.task_manager_service.controllers;
 
+import com.encora.task_manager_service.exceptions.TokenRefreshException;
 import com.encora.task_manager_service.models.User;
+import com.encora.task_manager_service.repositories.RefreshTokenRepository;
 import com.encora.task_manager_service.repositories.UserRepository;
-import com.encora.task_manager_service.security.AuthenticationRequest;
-import com.encora.task_manager_service.security.AuthenticationResponse;
-import com.encora.task_manager_service.security.JwtUtil;
+import com.encora.task_manager_service.security.*;
 import com.encora.task_manager_service.services.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,25 +44,74 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest)
-            throws Exception {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthenticationRequest loginRequest) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    authenticationRequest.getEmail(), authenticationRequest.getPassword()));
+            Authentication authentication = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            var userDetails = (UserDetails) authentication.getPrincipal();
+
+            String jwt = jwtUtil.generateToken(userDetails);
+            String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+            return ResponseEntity.ok(new AuthenticationResponse(jwt, refreshToken));
         } catch (Exception e) {
-            throw new Exception("Incorrect username or password", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Error: " + e.getMessage()));
         }
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getEmail());
-        final String jwt = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+    }
+
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenRepository.findByToken(requestRefreshToken)
+                .map(refreshToken -> {
+                    try {
+                        String token = jwtUtil.generateTokenFromUsername(refreshToken.getUserId());
+                        return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+                    } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Error: " + e.getMessage()));
+                    }
+                })
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+                        "Refresh token is not in database!"));
     }
 
     @PostMapping("/signup")
-    public User createUser(@RequestBody @Valid User user) {
+    public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+        // Create new user's account
         user.setRoles(List.of("ROLE_USER"));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(HttpServletRequest request) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String jwt = authorizationHeader.substring(7);
+                String userEmail = jwtUtil.extractUsername(jwt);
+                User user = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userEmail));
+                refreshTokenRepository.deleteByUserId(user.getId());
+            }
+            return ResponseEntity.ok(new MessageResponse("Log out successful!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Error: " + e.getMessage()));
+        }
     }
 }
