@@ -1,5 +1,22 @@
-FROM openjdk:17
+FROM maven:3.8.3-openjdk-17 AS build
+
 WORKDIR /app
-COPY ./target/task-manager-service-0.0.1-SNAPSHOT.jar /app/task-manager-service.jar
+
+# Copy only the necessary files for building (not the target directory)
+COPY pom.xml ./
+COPY src ./src/
+
+# Run Maven build
+RUN mvn -f ./pom.xml clean install
+
+# Use a smaller JRE image for runtime
+FROM amazoncorretto:17.0.7-alpine
+
+WORKDIR /app
+
+# Copy the built JAR from the build stage
+COPY --from=build /app/target/task-manager-service-0.0.1-SNAPSHOT.jar ./task-manager-service.jar
+
 EXPOSE 8080
+
 CMD ["java", "-jar", "task-manager-service.jar"]
