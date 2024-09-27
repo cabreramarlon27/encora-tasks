@@ -1,123 +1,135 @@
 //package com.encora.task_manager_service.controllers;
 //
+//import com.encora.task_manager_service.config.TestMongoConfig;
 //import com.encora.task_manager_service.models.Task;
 //import com.encora.task_manager_service.models.TaskStatus;
 //import com.encora.task_manager_service.repositories.TaskRepository;
+//import com.encora.task_manager_service.repositories.UserRepository;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+//import org.junit.jupiter.api.AfterEach;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.mongodb.core.MongoTemplate;
-//import org.springframework.data.mongodb.core.query.Query;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.http.MediaType;
 //import org.springframework.security.core.Authentication;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
+//import org.springframework.security.test.context.support.WithMockUser;
+//import org.springframework.test.web.servlet.MockMvc;
 //
 //import java.time.LocalDate;
-//import java.util.Arrays;
-//import java.util.Optional;
+//import static org.hamcrest.Matchers.hasSize;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 //
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.*;
-//
+//@SpringBootTest(classes = {TestMongoConfig.class})
+//@AutoConfigureMockMvc
 //public class TaskControllerTest {
-//    @Mock
+//    @Autowired
+//    private MockMvc mockMvc;
+//
+//    @Autowired
 //    private TaskRepository taskRepository;
-//    @InjectMocks
-//    private TaskController taskController;
+//
+//    @Autowired
+//    private ObjectMapper objectMapper;
 //    private Task task1;
 //    private Task task2;
 //    private Authentication authentication;
 //
 //    @BeforeEach
 //    public void setUp() {
-//        MockitoAnnotations.openMocks(this);
 //        task1 = new Task("1", "Test Task 1", "Description 1", LocalDate.now(), TaskStatus.TODO, "testuser");
 //        task2 = new Task("2", "Test Task 2", "Description 2", LocalDate.now().plusDays(1), TaskStatus.IN_PROGRESS, "anotheruser");
-//        authentication = new UsernamePasswordAuthenticationToken("testuser", "testpassword", Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
+//        taskRepository.save(task1);
+//        taskRepository.save(task2);
+//    }
+//
+//    @AfterEach
+//    public void tearDown() {
+//        taskRepository.deleteAll();
+//    }
+//
+//
+//    @Test
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testGetAllTasks_Success() throws Exception {
+//        mockMvc.perform(get("/api/tasks")
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$", hasSize(1)))
+//                .andExpect(jsonPath("$[0].title").value("Test Task 1"));
 //    }
 //
 //    @Test
-//    public void testGetTaskById_Success() {
-//        when(taskRepository.findById("1")).thenReturn(Optional.of(task1));
-//        ResponseEntity<Task> response = taskController.getTaskById("1", authentication);
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        assertEquals(task1, response.getBody());
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testGetTaskById_Success() throws Exception {
+//        mockMvc.perform(get("/api/tasks/1")
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.title").value("Test Task 1"));
 //    }
 //
 //    @Test
-//    public void testGetTaskById_NotFound() {
-//        when(taskRepository.findById("3")).thenReturn(Optional.empty());
-//        ResponseEntity<Task> response = taskController.getTaskById("3", authentication);
-//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//    }
-//    @Test
-//    public void testGetTaskById_Forbidden() {
-//        when(taskRepository.findById("2")).thenReturn(Optional.of(task2));
-//        ResponseEntity<Task> response = taskController.getTaskById("2", authentication);
-//        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testGetTaskById_NotFound() throws Exception {
+//        mockMvc.perform(get("/api/tasks/3")
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isNotFound());
 //    }
 //
 //    @Test
-//    public void testCreateTask() {
-//        when(taskRepository.save(any(Task.class))).thenReturn(task1);
-//        Task createdTask = taskController.createTask(task1, authentication);
-//        assertEquals(task1, createdTask);
-//        verify(taskRepository, times(1)).save(any(Task.class));
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testCreateTask_Success() throws Exception {
+//        Task newTask = new Task(null, "New Task", "New description", LocalDate.now(), TaskStatus.TODO, "testuser");
+//        mockMvc.perform(post("/api/tasks")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(newTask)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.title").value("New Task"));
 //    }
+//
 //    @Test
-//    public void testUpdateTask_Success() {
-//        when(taskRepository.findById("1")).thenReturn(Optional.of(task1));
-//        when(taskRepository.save(any(Task.class))).thenReturn(task1);
-//        Task updatedTask = new Task(); // Create an updated task object
-//        updatedTask.setTitle("Updated Task Title");
-//        updatedTask.setDescription("Updated description");
-//        updatedTask.setStatus(TaskStatus.IN_PROGRESS);
-//        updatedTask.setUserId("testuser"); // Ensure the userId is set
-//        Task result = taskController.updateTask("1", updatedTask, authentication);
-//        assertEquals("Updated Task Title", result.getTitle());
-//        assertEquals("Updated description", result.getDescription());
-//        assertEquals(TaskStatus.IN_PROGRESS, result.getStatus());
-//        verify(taskRepository, times(1)).save(any(Task.class));
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testUpdateTask_Success() throws Exception {
+//        Task updatedTask = new Task("1", "Updated Task Title", "Updated description", LocalDate.now(), TaskStatus.IN_PROGRESS, "testuser");
+//        mockMvc.perform(put("/api/tasks/1")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(updatedTask)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.title").value("Updated Task Title"));
 //    }
+//
 //    @Test
-//    public void testUpdateTask_NotFound() {
-//        when(taskRepository.findById("3")).thenReturn(Optional.empty());
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testUpdateTask_NotFound() throws Exception {
 //        Task updatedTask = new Task("3", "Updated Task", "Updated Description", LocalDate.now(), TaskStatus.TODO, "testuser");
-//        Task result = taskController.updateTask("3", updatedTask, authentication);
-//        assertNull(result);
-//    }
-//    @Test
-//    public void testDeleteTask_Success() {
-//        when(taskRepository.findById("1")).thenReturn(Optional.of(task1));
-//        ResponseEntity<String> response = taskController.deleteTask("1", authentication);
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        assertEquals("Task deleted successfully", response.getBody());
-//        verify(taskRepository, times(1)).deleteById("1");
+//        mockMvc.perform(put("/api/tasks/3")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(updatedTask)))
+//                .andExpect(status().isNotFound());
 //    }
 //
 //    @Test
-//    public void testDeleteTask_NotFound() {
-//        when(taskRepository.findById("3")).thenReturn(Optional.empty());
-//        ResponseEntity<String> response = taskController.deleteTask("3", authentication);
-//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        verify(taskRepository, never()).deleteById("3");
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testDeleteTask_Success() throws Exception {
+//        mockMvc.perform(delete("/api/tasks/1"))
+//                .andExpect(status().isOk());
 //    }
+//
 //    @Test
-//    public void testDeleteTask_Forbidden() {
-//        when(taskRepository.findById("2")).thenReturn(Optional.of(task2));
-//        ResponseEntity<String> response = taskController.deleteTask("2", authentication);
-//        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-//        verify(taskRepository, never()).deleteById("2");
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testDeleteTask_NotFound() throws Exception {
+//        mockMvc.perform(delete("/api/tasks/3"))
+//                .andExpect(status().isNotFound());
+//    }
+//
+//    @Test
+//    @WithMockUser(username = "testuser", roles = "USER")
+//    public void testDeleteTask_Forbidden() throws Exception {
+//        mockMvc.perform(delete("/api/tasks/2"))
+//                .andExpect(status().isForbidden());
 //    }
 //}

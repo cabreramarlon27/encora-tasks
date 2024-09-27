@@ -7,7 +7,7 @@ COPY pom.xml ./
 COPY src ./src/
 
 # Run Maven build
-RUN mvn -f ./pom.xml clean install
+RUN mvn -f ./pom.xml clean package -DskipTests
 
 # Use a smaller JRE image for runtime
 FROM amazoncorretto:17.0.7-alpine

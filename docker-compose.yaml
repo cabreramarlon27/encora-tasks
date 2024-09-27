@@ -1,12 +1,17 @@
 version: "3.3"
 services:
   mongodb:
+    container_name: "mongodb2"
+    hostname: mongodb2
     image: mongo:latest
     ports:
-      - "27017:27017"
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data2/db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: root2
+      MONGO_INITDB_ROOT_PASSWORD: example2
+      MONGO_INITDB_DATABASE: tasks2
   backend:
     build: ./backend/task-manager-service
     ports:
@@ -19,3 +24,6 @@ services:
       - "4200:80"
     depends_on:
       - backend
+
+volumes:
+  mongo_data:
