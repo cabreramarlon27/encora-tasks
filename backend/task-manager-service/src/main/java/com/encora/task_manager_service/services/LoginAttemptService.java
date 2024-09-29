@@ -22,4 +22,8 @@ public class LoginAttemptService {
     public boolean isBlocked(String key) {
         return attemptsCache.containsKey(key) && attemptsCache.get(key).get() >= MAX_ATTEMPT;
     }
+
+    public void resetAttemptsCache(){
+        attemptsCache.clear();
+    }
 }

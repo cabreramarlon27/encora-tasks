@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
@@ -33,15 +34,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            if (isRefreshTokenRequest(request)){
+            if (isRefreshTokenRequest(request)) {
                 filterChain.doFilter(request, response);
                 return;
             }
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.extractEmail(jwt);
-
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                jwtUtils.validateToken(jwt, userDetails);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -49,17 +50,16 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (ExpiredJwtException e) {
-            // Log the exception for debugging
-            logger.error("JWT token is expired: {} token: {}" , e.getMessage(), e.getClaims());
-            // Set the response status to 401 Unauthorized
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("JWT token is expired"); // Optional message
-            return;
+            logger.error("JWT token is expired: {} token: {}", e.getMessage(), e.getClaims());
+        } catch (AccessDeniedException e) { // Catch AccessDeniedException
+            logger.error("Access Denied: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 Forbidden
+            response.getWriter().write("Access Denied");
         } catch (Exception e) {
             logger.error("Cannot set user authentication", e);
+        } finally {
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private boolean isRefreshTokenRequest(HttpServletRequest request) {

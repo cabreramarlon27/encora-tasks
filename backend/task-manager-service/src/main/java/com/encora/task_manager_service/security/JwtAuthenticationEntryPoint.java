@@ -10,8 +10,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         //todo: do I need this class?
         // Log the exception for debugging (optional but recommended)
 //         System.out.println("JwtAuthenticationEntryPoint - Exception: " + authException.getMessage());
-//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//        response.setContentType("application/json");
-//        response.getWriter().write("{ \"message\": \"JWT token is expired or invalid\" }");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("{ \"message\": \"JWT token is expired or invalid\" }");
     }
 }

@@ -1,5 +1,6 @@
 package com.encora.task_manager_service.models;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class Task {
     private String id;
     @NotBlank(message = "Title is mandatory")
     private String title;
+    @Size(max = 255, message = "Description must be less than 255 characters")
     private String description;
     @NotNull(message = "Due date is mandatory")
     private LocalDate dueDate;

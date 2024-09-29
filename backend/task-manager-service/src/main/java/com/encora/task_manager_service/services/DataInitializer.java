@@ -7,6 +7,7 @@ import com.encora.task_manager_service.repositories.TaskRepository;
 import com.encora.task_manager_service.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Random;
 
 @Component
+@ConditionalOnProperty(name = "initialize.data", havingValue = "true")
 public class DataInitializer implements CommandLineRunner {
     @Autowired
     private UserRepository userRepository;
