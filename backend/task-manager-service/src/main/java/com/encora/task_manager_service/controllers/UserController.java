@@ -5,7 +5,6 @@ import com.encora.task_manager_service.exceptions.UserNotFoundException;
 import com.encora.task_manager_service.models.User;
 import com.encora.task_manager_service.services.UserService;
 import jakarta.validation.Valid;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/users")
@@ -41,6 +38,18 @@ public class UserController {
             return ResponseEntity.ok(updatedUser);
         } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/me/")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<User> getUser(Authentication authentication) {
+        String authenticatedUserEmail = authentication.getName();
+
+        try {
+            return ResponseEntity.ok(userService.getUserByEmail(authenticatedUserEmail));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

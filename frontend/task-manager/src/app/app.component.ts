@@ -18,6 +18,7 @@ export class AppComponent {
     private router: Router
   ) {
     this.notificationService.getNotifications().subscribe((message) => {
+      console.log('Getting notifications from websocket');
       this.snackBar.open(message, 'Close', {
         duration: 5000, // Adjust duration as needed
       });

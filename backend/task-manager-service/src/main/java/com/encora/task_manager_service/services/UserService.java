@@ -23,4 +23,8 @@ public class UserService {
         user.setNotificationsEnabled(notificationsEnabled);
         return userRepository.save(user);
     }
+
+    public User getUserByEmail(String userEmail) {
+        return userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userEmail));
+    }
 }

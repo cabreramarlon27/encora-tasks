@@ -11,6 +11,7 @@ import { Task } from 'src/app/models/task.model';
 import { MatConfirmDialogComponent } from '../mat-confirmation-dialog/mat-confirmation-dialog.component'; // Assuming you have this component
 import { TaskEditComponent } from '../task-edit/task-edit.component';
 import { TaskDetailsComponent } from '../task-details/task-details.component';
+import { WebSocketService } from '../../services/websocketservice.service';
 
 @Component({
   selector: 'app-task-list',
@@ -33,7 +34,8 @@ export class TaskListComponent implements OnInit {
     private taskService: TaskService,
     public dialog: MatDialog,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private webSocketService: WebSocketService
   ) {}
 
   ngOnInit() {
@@ -129,7 +131,7 @@ export class TaskListComponent implements OnInit {
       )
       .subscribe((data) => {
         this.tasks = data.content;
-        this.totalElements = data.totalElements;
+        this.totalElements = data.page.totalElements;
       });
   }
 
@@ -154,5 +156,9 @@ export class TaskListComponent implements OnInit {
     const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add leading zero if needed
     const day = ('0' + date.getDate()).slice(-2); // Add leading zero if needed
     return `${year}-${month}-${day}`;
+  }
+
+  ngOnDestroy() {
+    this.webSocketService.disconnect();
   }
 }

@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit {
     this.taskService
       .getTasks(0, 1, 'dueDate', 'asc', undefined, undefined, undefined)
       .subscribe((data) => {
-        this.totalTasks = data.totalElements;
+        this.totalTasks = data.page.totalElements;
       });
 
     // Calculate tasks due soon (e.g., within the next 24 hours)
@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit {
     this.taskService
       .getTasks(0, 1, 'dueDate', 'asc', this.startDate, this.endDate, undefined)
       .subscribe((data) => {
-        this.tasksDueSoon = data.totalElements;
+        this.tasksDueSoon = data.page.totalElements;
       });
 
     this.taskService
@@ -52,7 +52,7 @@ export class DashboardComponent implements OnInit {
         TaskStatus.COMPLETED
       )
       .subscribe((data) => {
-        this.completedTasks = data.totalElements;
+        this.completedTasks = data.page.totalElements;
       });
 
     // Get all past-due tasks
