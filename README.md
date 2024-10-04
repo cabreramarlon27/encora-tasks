@@ -5,6 +5,7 @@ This is a simple task manager application built with Spring Boot (Backend) and A
 - Sign up for an account.
 - Log in to manage their tasks.
 - Create, read, update, and delete tasks.
+- Filter and sort tasks by status, due date, etc.
 
 ## Project Structure
 
@@ -134,7 +135,6 @@ If you prefer to run the backend and frontend applications separately, you can f
 
 **Future Improvements:**
 
-- **Task Filtering and Sorting:** Allow users to filter and sort tasks by status, due date, etc.
 - **Task Prioritization:** Implement a system for prioritizing tasks.
 - **User Interface Enhancements:** Improve the overall look and feel of the application.
 
