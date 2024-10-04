@@ -67,16 +67,39 @@ If you prefer to run the backend and frontend applications separately, you can f
 
 **API Endpoints:**
 
-| Endpoint          | Method | Description                                     |
-| ------------------ | -------- | ----------------------------------------------- |
-| `/api/auth/signup` | POST    | Create a new user account.                    |
-| `/api/auth/login`  | POST    | Authenticate and get a JWT token.             |
-| `/api/tasks`      | GET     | Get all tasks for the authenticated user.     |
-| `/api/tasks`      | POST    | Create a new task for the authenticated user.  |
-| `/api/tasks/{id}`  | PATCH   | Update an existing task.                      |
-| `/api/tasks/{id}`  | DELETE  | Delete a task.                                 |
+## API Endpoints
 
-### Frontend (Angular)
+### Authentication
+
+| HTTP Method | Endpoint           | Description                                  |
+|-------------|--------------------|----------------------------------------------|
+| POST        | /api/auth/signup  | Register a new user                         |
+| POST        | /api/auth/signin  | Authenticate and get a JWT token            |
+| POST        | /api/auth/refresh | Refresh the JWT token                       |
+
+### Users
+
+| HTTP Method | Endpoint                      | Description                                                              |
+|-------------|-------------------------------|--------------------------------------------------------------------------|
+| PATCH        | /api/users/me/notifications    | Update the user's notification preferences (enabled/disabled)           |
+| GET         | /api/users/me/notifications    | Get the user's current notification status (enabled/disabled)            |
+| GET         | /api/users/me/                | Get the user's information                                              |
+
+### Tasks
+
+| HTTP Method | Endpoint      | Description                                                              |
+|-------------|----------------|--------------------------------------------------------------------------|
+| GET         | /api/tasks     | Get a list of tasks for the authenticated user                          |
+| GET         | /api/tasks/{id} | Get a specific task by ID (only accessible to the task owner)            |
+| POST        | /api/tasks     | Create a new task (authenticated user is set as the owner)              |
+| PUT         | /api/tasks/{id} | Update an existing task (only accessible to the task owner)             |
+| DELETE      | /api/tasks/{id} | Delete a task (only accessible to the task owner)                        |
+
+### WebSocket Endpoints
+
+| Protocol    | Endpoint                  | Description                                                                 |
+|-------------|---------------------------|-----------------------------------------------------------------------------|
+| WebSocket   | /topic/taskNotifications | Receive real-time task notifications (e.g., task overdue, due soon)        |
 
 **Technologies Used:**
 
